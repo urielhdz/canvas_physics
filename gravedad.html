@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+	<meta charset='utf-8'>
+	<title></title>
+	<style type="text/css">
+	canvas{
+		border: solid;
+	}
+	</style>
+</head>
+<body>
+	<canvas width='800' height='600'></canvas>
+	<script>
+		window.addEventListener('load',function(){
+			var canvas = document.querySelector('canvas');
+			var ctx = canvas.getContext('2d');
+			var W = canvas.width;
+			var H = canvas.height;
+			var vx = 0;
+			var gravity = 0.5;
+			var vy = (Math.random()* -30) -5;
+			var bounce_factor =0.8;
+			var Ball = function(){
+				this.radius = 50;
+				this.x = canvas.width/2;
+				this.y = canvas.height - this.radius;
+
+				this.draw = function(ctx){
+					console.log("entree");
+					ctx.fillStyle='rgb(200,0,0)';
+					ctx.beginPath();
+					ctx.arc(this.x,this.y,this.radius,0,Math.PI * 2);
+					ctx.closePath();
+					ctx.fill();
+				}
+			}
+			var ball = new Ball();
+			(function renderFrame(){
+				window.webkitRequestAnimationFrame(renderFrame);
+				console.log(ball.x+","+ball.y);
+				if(ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0 ||  ball.y + ball.radius > canvas.height){
+					ball.x = canvas.width/2;
+					ball.y = canvas.height - ball.radius;
+					vy *= -bounce_factor;
+				}
+				vy +=gravity;
+				ctx.clearRect(0,0,W,H);
+				ball.x +=vx;
+				ball.y +=vy;
+				ball.draw(ctx);
+			}());
+		});
+	</script>
+</body>
+</html>

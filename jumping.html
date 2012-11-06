@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+	<meta charset='utf-8'>
+	<title></title>
+	<style type="text/css">
+	canvas{
+		border: solid;
+	}
+	</style>
+</head>
+<body>
+	<canvas width='800' height='600'></canvas>
+	<script>
+		window.addEventListener('load',function(){
+			addKeyBoardevents();
+			var canvas = document.querySelector('canvas');
+			var ctx = canvas.getContext('2d');
+			var keyboard = {};
+			var W = canvas.width;
+			var H = canvas.height;
+			var vx = 0;
+			var gravity = 0.5;
+			var vy = -20;
+			var vx = 0;
+			var bounce_factor =1.025;
+			var Ball = function(){
+				this.radius = 50;
+				this.x = canvas.width/2;
+				this.y = canvas.height - 200;
+
+				this.draw = function(ctx){
+					ctx.save();
+					ctx.fillStyle='rgb(200,0,0)';
+					ctx.beginPath();
+					ctx.arc(this.x,this.y,this.radius,0,Math.PI * 2);
+					ctx.closePath();
+					ctx.fill();
+					ctx.restore();
+				}
+			}
+			var Table = function(){
+				this.width = 150;
+				this.height = 50;
+				this.x = canvas.width/2 - (this.width/2);
+				this.y = canvas.height - this.height - 50;
+				this.draw= function(ctx){
+					ctx.save();
+					ctx.fillStyle = 'blue';
+					ctx.fillRect(this.x,this.y,this.width,this.height);
+					ctx.restore();
+				}
+			}
+			var ball = new Ball();
+			var table = new Table();
+			(function renderFrame(){
+				window.webkitRequestAnimationFrame(renderFrame);
+				if(ball.x + ball.radius > canvas.width || ball.x < 0){
+					vx = vx * -1;
+				}
+				if(ball.y + ball.radius > canvas.height){
+					console.log("Termine");
+				}
+				if(keyboard[37])
+				{
+					table.x -= 10;
+					//Colocamos un límite
+					if(table.x <0 )
+						table.x = 0;
+				}
+				//Mover a la derecha
+				if(keyboard[39])
+				{
+					//Movemos la nave
+					table.x += 10;
+					//Colocamos un límite
+					var rightEdge = canvas.width - table.width;
+					if(table.x > rightEdge ) table.x = rightEdge;
+				}
+				var a ={
+					x:ball.x,
+					y:ball.y,
+					width:ball.radius,
+					height:ball.radius
+				}
+				if(hit(a,table)) {
+					vy *= -bounce_factor;
+					vx = aleatorio(-5,5);
+				}
+				vy +=gravity;
+				ctx.clearRect(0,0,W,H);
+				ball.x +=vx;
+				ball.y +=vy;
+				ball.draw(ctx);
+				table.draw(ctx);
+			}());
+			function addKeyBoardevents()
+			{
+				//Esta función agrega los eventos al teclado para IE y otros navgs.
+				addEvent(document, "keydown",function(e){
+					//True a la tecla aplastada.
+					keyboard[e.keyCode] = true;
+				});
+				addEvent(document, "keyup",function(e){
+					//False a la tecla que se levantó
+					keyboard[e.keyCode] = false;
+				});
+				function addEvent(element, eventName, func)
+				{
+					if(element.addEventListener)
+					{
+						//Buenos navegadores (Chrome, Firefox, Opera etc.)
+						element.addEventListener(eventName,func,false);
+					}
+					else if(element.attachEvent)
+					{
+						//Navegadores de Microsoft
+						element.attachEvent(eventName,func);
+					}
+				}
+
+			}
+		});
+		function hit(a,b)
+		{
+			var hit = false;
+			//Colsiones horizontales
+			if(b.x + b.width >= a.x && b.x < a.x + a.width)
+			{
+				//Colisiones verticales
+				if(b.y + b.height >= a.y && b.y < a.y + a.height)
+					hit = true;
+			}
+			//Colisión de a con b
+			if(b.x <= a.x && b.x + b.width >= a.x + a.width)
+			{
+				if(b.y <= a.y && b.y + b.height >= a.y + a.height)
+					hit = true;
+			}
+			//Colisión b con a
+			if(a.x <= b.x && a.x + a.width >= b.x + b.width)
+			{
+				if(a.y <= b.y && a.y + a.height >= b.y + b.height)
+					hit = true;
+			}
+			return hit;
+		}
+		function aleatorio(inferior,superior)
+		{
+			//Función que genera números aleatorios vía desarrolloweb.com 
+		    numPosibilidades = superior - inferior 
+		    aleat = Math.random() * numPosibilidades 
+		    aleat = Math.floor(aleat) 
+		    return parseInt(inferior) + aleat 
+		} 
+	</script>
+</body>
+</html>
